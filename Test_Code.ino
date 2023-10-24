@@ -2,18 +2,12 @@
 #include <ArduinoBLE.h>
 #define mySerial Serial1
 
-long latitudine, longitudine, altitudine, rottaGps;
-int giorno, mese, anno;
-int milli, secondi, minuti, ore, deltaHeading, TWA, TWS;
-float latitudine1, longitudine1, rottaGps1;
+long lat, lon, alti, courseGps;
+int day, month, year,SIV, milli, second, minutes, hours,TWA, TWS;
+float lat1, lon1, courseGps1, speed,W_Intensity, W_Dir, AWA, AWS;
 byte fixType;
-int SIV;
-uint16_t W_Intensity_raw;
-float W_Intensity;
-float AWS;
-uint16_t W_Dir_raw;
-float W_Dir;
-float AWA;
+uint16_t W_Intensity_raw, W_Dir_raw;
+bool Wind;
 
 SFE_UBLOX_GNSS myGNSS;
 
@@ -45,7 +39,6 @@ void setup() {
       myGNSS.setSerialRate(38400);
       delay(100);
     } else {
-      //myGNSS.factoryReset();
       delay(2000);  //Wait a bit before trying again to limit the Serial output
     }
   } while (1);
@@ -55,19 +48,18 @@ void setup() {
   myGNSS.setI2COutput(COM_TYPE_UBX);    //Set the I2C port to output UBX only (turn off NMEA noise)
   myGNSS.setNavigationFrequency(1);
   myGNSS.setAutoPVT(true);
-  myGNSS.saveConfiguration();  //Save the current settings to flash and BBR
-  //myGNSS.powerSaveMode();
+  myGNSS.saveConfiguration();  
+
   myGNSS.enableDebugging();
 
   pinMode(86, OUTPUT);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+
 
   BLEDevice peripheral = BLE.available();
   if (peripheral) {
-    // discovered a peripheral, print out address, local name, and advertised service
     Serial.print("Found ");
     Serial.print(peripheral.address());
     Serial.print(" '");
@@ -143,44 +135,44 @@ void Ble(BLEDevice peripheral) {
 void Main() {
 
   if (myGNSS.getPVT()) {
-    latitudine = myGNSS.getLatitude();
-    longitudine = myGNSS.getLongitude();
-    altitudine = myGNSS.getAltitude();
-    velocita = myGNSS.getGroundSpeed();
-    anno = myGNSS.getYear();
-    mese = myGNSS.getMonth();
-    giorno = myGNSS.getDay();
-    ore = myGNSS.getHour();
-    minuti = myGNSS.getMinute();
-    secondi = myGNSS.getSecond();
+    lat = myGNSS.getLatitude();
+    lon = myGNSS.getLongitude();
+    alti = myGNSS.getAltitude();
+    speed = myGNSS.getGroundSpeed();
+    year = myGNSS.getYear();
+    month = myGNSS.getMonth();
+    day = myGNSS.getDay();
+    hours = myGNSS.getHour();
+    minutes= myGNSS.getMinute();
+    second = myGNSS.getSecond();
     milli = myGNSS.getMillisecond();
     SIV = myGNSS.getSIV();
-    rottaGps = myGNSS.getHeading();
+    courseGps = myGNSS.getHeading();
     //Serial.println(rottaGps*0.00001);
-    latitudine1 = latitudine * 0.0000001;
-    longitudine1 = longitudine * 0.0000001;
-    velocita = velocita / 1000;
-    rottaGps1 = rottaGps * 0.00001;
-    seriale();
+    lat1 = latitudine * 0.0000001;
+    lon1 = longitudine * 0.0000001;
+    speed = velocita / 1000;
+    courseGps1 = rottaGps * 0.00001;
+    serial();
     fixType = myGNSS.getFixType();
   }
 }
 
 
 
-void seriale() {
-  Serial.print("rotta gps:");
-  Serial.println(rottaGps1);
-  Serial.print("velocità");
-  Serial.println(velocita);
-  Serial.print("direzione vento apparente:");
+void serial() {
+  Serial.print("GPS Course:");
+  Serial.println(courseGps1);
+  Serial.print("speed:");
+  Serial.println(speed);
+  Serial.print("AWA:");
   Serial.println(AWA);
-  Serial.print("intensità vento apparente:");
+  Serial.print("AWS:");
   Serial.println(AWS);
-  Serial.print("direzione vento reale:");
+  Serial.print("TWA:");
   Serial.println(TWA);
-  Serial.print("intensità vento reale:");
+  Serial.print("TWS:");
   Serial.println(TWS);
-
+  Serial.print("Wind station");
   Serial.println(Wind);
 }

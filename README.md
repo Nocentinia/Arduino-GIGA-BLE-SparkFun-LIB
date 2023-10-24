@@ -1,2 +1,2 @@
 # Arduino-GIGA-BLE-SparkFun-LIB
-risolvere il problema per cui su Arduino GIGA se si utilizza la libreria GPS SparkFun il BLE smette di funzionare.
+solve the problem where on Arduino GIGA if you use the SparkFun GPS library the BLE stops working.
